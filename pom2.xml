@@ -3,14 +3,12 @@
 	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
-	<properties>
-		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-	</properties>
 
 	<groupId>com.netspi.wsdler</groupId>
 	<artifactId>wsdler</artifactId>
 	<version>2.0.4-SNAPSHOT</version>
 
+	<!-- https://libraries.io/github/reficio/soap-ws -->
 	<dependencies>
 		<dependency>
 			<groupId>org.reficio</groupId>
@@ -27,6 +25,12 @@
 			<artifactId>soap-server</artifactId>
 			<version>1.0.0-SNAPSHOT</version>
 		</dependency>
+		<!-- https://mvnrepository.com/artifact/org.apache.xmlbeans/xmlbeans -->
+		<dependency>
+			<groupId>org.apache.xmlbeans</groupId>
+			<artifactId>xmlbeans</artifactId>
+			<version>2.6.0</version>
+		</dependency>
 
 	</dependencies>
 
@@ -38,7 +42,14 @@
 		</repository>
 	</repositories>
 
-<build>
+
+	<!-- <build> <plugins> <plugin> <groupId>org.apache.maven.plugins</groupId> 
+		<artifactId>maven-shade-plugin</artifactId> <executions> <execution> <phase>package</phase> 
+		<goals> <goal>shade</goal> </goals> </execution> </executions> <configuration> 
+		<createDependencyReducedPom>false</createDependencyReducedPom> </configuration> 
+		</plugin> </plugins> </build> -->
+
+	<build>
 		<sourceDirectory>src</sourceDirectory>
 		<plugins>
 			<plugin>

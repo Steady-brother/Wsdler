@@ -132,5 +132,4 @@ public class WSDLTab extends AbstractTableModel implements IMessageEditorControl
             }
         }
     }
-
  }

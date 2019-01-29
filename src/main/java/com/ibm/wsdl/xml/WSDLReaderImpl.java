@@ -15,7 +15,6 @@ import burp.IHttpRequestResponse;
 import burp.IRequestInfo;
 import burp.IResponseInfo;
 import burp.WSDLParser;
-import com.sun.xml.internal.ws.api.model.wsdl.WSDLModel;
 import org.w3c.dom.*;
 import org.xml.sax.*;
 import javax.wsdl.*;

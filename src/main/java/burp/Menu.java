@@ -45,7 +45,7 @@ public class Menu implements IContextMenuFactory {
             public void mouseReleased(MouseEvent e) {
                 WSDLParser parser = new WSDLParser(callbacks,helpers, tab);
                 try {
-                    new Worker(parser,invocation, tab, callbacks).execute();
+                    new Worker(parser,invocation, tab, callbacks,false).execute();
                 } catch (Exception e1) {
                     e1.printStackTrace();
                 }
@@ -64,6 +64,42 @@ public class Menu implements IContextMenuFactory {
         });
         list.add(item);
 
+        JMenuItem itemScan = new JMenuItem("Parse WSDL And Do Active Scan");
+
+        item.addMouseListener(new MouseListener() {
+
+            public void mouseClicked(MouseEvent e) {
+
+            }
+
+
+            public void mousePressed(MouseEvent e) {
+
+            }
+
+
+            public void mouseReleased(MouseEvent e) {
+                WSDLParser parser = new WSDLParser(callbacks,helpers, tab);
+                try {
+                    new Worker(parser,invocation, tab, callbacks,true).execute();
+                } catch (Exception e1) {
+                    e1.printStackTrace();
+                }
+
+            }
+
+
+            public void mouseEntered(MouseEvent e) {
+
+            }
+
+
+            public void mouseExited(MouseEvent e) {
+
+            }
+        });
+        list.add(itemScan);
+
         return list;
     }
 
@@ -77,8 +113,9 @@ class Worker extends SwingWorker<Void,Void> {
     private WSDLParserTab tab;
     private IBurpExtenderCallbacks callbacks;
     private int status;
+	private boolean doActiveScan;
 
-    public Worker(WSDLParser parser, IContextMenuInvocation invocation, WSDLParserTab tab, IBurpExtenderCallbacks callbacks) {
+    public Worker(WSDLParser parser, IContextMenuInvocation invocation, WSDLParserTab tab, IBurpExtenderCallbacks callbacks,boolean DoActiveScan) {
         JProgressBar progressBar = new JProgressBar();
         progressBar.setString("Parsing WSDL");
         progressBar.setStringPainted(true);
@@ -92,11 +129,19 @@ class Worker extends SwingWorker<Void,Void> {
         this.invocation = invocation;
         this.tab = tab;
         this.callbacks = callbacks;
+        this.doActiveScan = DoActiveScan;
     }
 
     @Override
     protected Void doInBackground() throws Exception {
-        status = parser.parseWSDL(invocation.getSelectedMessages()[0], callbacks);
+    	for( IHttpRequestResponse message:invocation.getSelectedMessages()) {
+    		try {
+    			status = parser.parseWSDL(message, callbacks, doActiveScan);
+    			
+    		}catch (Exception e) {
+    			e.printStackTrace();
+    		}
+    	}
         return null;
     }
 

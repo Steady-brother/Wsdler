@@ -32,7 +32,7 @@ public class WSDLParser {
 
     }
 
-    public int parseWSDL(IHttpRequestResponse requestResponse, IBurpExtenderCallbacks callbacks) throws ParserConfigurationException, IOException, SAXException, WSDLException, ExecutionException, InterruptedException {
+    public int parseWSDL(IHttpRequestResponse requestResponse, IBurpExtenderCallbacks callbacks,boolean doActiveScan) throws ParserConfigurationException, IOException, SAXException, WSDLException, ExecutionException, InterruptedException {
         httpRequestResponse = requestResponse;
         byte[] response = requestResponse.getResponse();
 
@@ -130,9 +130,21 @@ public class WSDLParser {
                 }
                 if (success) {
                     endpoints = builder.getServiceUrls();
-                    wsdltab.addEntry(new WSDLEntry(bindingName, xmlRequest, operationName, endpoints, requestResponse));
+                    WSDLEntry entry = new WSDLEntry(bindingName, xmlRequest, operationName, endpoints, requestResponse);
+                    wsdltab.addEntry(entry);
+                    
+                    if (doActiveScan) {
+                        //do active scan
+                        IHttpService service = entry.requestResponse.getHttpService();
+                        boolean useHttps;
+    					if( service.getProtocol().equalsIgnoreCase("https")){
+                        	useHttps= true;
+                        }else {
+                        	useHttps = false;
+                        }
+                        callbacks.doActiveScan(service.getHost(), service.getPort(), useHttps, entry.request);
+                    }
                 }
-
             }
         }
         return 0;
