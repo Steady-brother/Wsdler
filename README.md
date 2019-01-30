@@ -1,29 +1,24 @@
-Wsdler
-======
+## Wsdler
 
 WSDL Parser extension for Burp
 
-## How to Run ##
 
-1. Download and install from the Burp App store.
 
-2. Right-click on WSDL request and select Parse WSDL
+##Change instructions (by [bit4woo](https://github.com/bit4woo/Wsdler))
 
-  ![alt tag](https://blog.netspi.com/wp-content/uploads/2015/05/1430624759-035d370fd48f0d9a8c8326a78fccb714.png)
+1. support to selcet multiple WSDL request to parse.  支持同时选择多个wsdl的请求进行解析
+2. support to select multiple WSDL request to parse and do active scan. 支持同时选择多个wsdl的请求进行解析并立即进行主动扫描。
 
-3. The Wsdler tab should populate with the SOAP requests
+![wsdl](img/wsdl.gif)
 
-  ![alt tag](https://blog.netspi.com/wp-content/uploads/2015/05/1430624761-83fe6f80d8d373113cced26ab6c0714b.png)
+##original project
 
-(Older) Blog detailing how to use the Wsdler Plugin:
+https://github.com/NetSPI/Wsdler
 
-https://blog.netspi.com/hacking-web-services-with-burp/
 
-How To Compile
-==============
 
-I used IntelliJ to compile this plugin. However, Eclipse should work too. 
+## some  tips for building this project
 
-1. Clone the repo and open the folder as a project in Intellij/Eclipse
-2. Maven is used to retrieve dependencies. So import the pom.xml into Maven. For Intellij, this should happen automatically. You can see the dependencies by clicking the vertically aligned Maven Projects tab on the right side of the window.
-3. You should now be able to compile the plugin. Make sure that when you are building, a jar file gets created. In Intellij, select File > Project Structure > Artifacts > Plus Sign > Jar > From modules with dependencies > OK and check the Build on make checkbox. That should be it. Again, the process should be similar in Eclipse.
+1.  when you encounter the "connection timed out " error to www.eviware.com .  refer this https://github.com/reficio/soap-ws/issues/60    and  change your local host file. add a item :  "50.57.35.40 [www.eviware.com](http://www.eviware.com/)" . 50.57.35.40 is the IP address of smartbearsoftware.com
+
+![mavenerror](img/mavenerror.png)

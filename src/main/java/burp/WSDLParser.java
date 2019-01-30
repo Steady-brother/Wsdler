@@ -12,6 +12,7 @@ import javax.xml.namespace.QName;
 import javax.xml.parsers.ParserConfigurationException;
 import java.awt.*;
 import java.io.IOException;
+import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -24,12 +25,15 @@ public class WSDLParser {
     public static IHttpRequestResponse httpRequestResponse;
     private WSDLParserTab tab;
     public static List<String> headers;
+	private PrintWriter stdout;
+	private PrintWriter stderr;
 
     public WSDLParser(IBurpExtenderCallbacks callbacks, IExtensionHelpers helpers, WSDLParserTab tab) {
         WSDLParser.helpers = helpers;
         this.tab = tab;
         WSDLParser.callbacks = callbacks;
-
+		stdout = new PrintWriter(callbacks.getStdout(), true);
+		stderr = new PrintWriter(callbacks.getStderr(), true);
     }
 
     public int parseWSDL(IHttpRequestResponse requestResponse, IBurpExtenderCallbacks callbacks,boolean doActiveScan) throws ParserConfigurationException, IOException, SAXException, WSDLException, ExecutionException, InterruptedException {
@@ -128,23 +132,31 @@ public class WSDLParser {
                 } catch (Exception e) {
                     success = false;
                 }
-                if (success) {
-                    endpoints = builder.getServiceUrls();
-                    WSDLEntry entry = new WSDLEntry(bindingName, xmlRequest, operationName, endpoints, requestResponse);
-                    wsdltab.addEntry(entry);
-                    
-                    if (doActiveScan) {
-                        //do active scan
-                        IHttpService service = entry.requestResponse.getHttpService();
-                        boolean useHttps;
-    					if( service.getProtocol().equalsIgnoreCase("https")){
-                        	useHttps= true;
+                try {
+                    if (success) {
+                        endpoints = builder.getServiceUrls();
+                        WSDLEntry entry = new WSDLEntry(bindingName, xmlRequest, operationName, endpoints, requestResponse);
+                        wsdltab.addEntry(entry);
+                        
+                        if (doActiveScan) {
+                        	stdout.println("Parse done And Do Active Scan for "+requestName+":"+operationName+":"+bindingName);
+                            //do active scan
+                            IHttpService service = entry.requestResponse.getHttpService();
+                            boolean useHttps;
+        					if( service.getProtocol().equalsIgnoreCase("https")){
+                            	useHttps= true;
+                            }else {
+                            	useHttps = false;
+                            }
+                            callbacks.doActiveScan(service.getHost(), service.getPort(), useHttps, entry.request);
                         }else {
-                        	useHttps = false;
+                        	stdout.println("Parse done for "+requestName+":"+operationName+":"+bindingName);
                         }
-                        callbacks.doActiveScan(service.getHost(), service.getPort(), useHttps, entry.request);
                     }
+                }catch(Exception e) {
+                	e.printStackTrace(stderr);
                 }
+
             }
         }
         return 0;

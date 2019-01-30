@@ -2,8 +2,11 @@ package burp;
 
 import javax.swing.*;
 import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
+import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Timer;
@@ -13,10 +16,14 @@ public class Menu implements IContextMenuFactory {
     private IExtensionHelpers helpers;
     private IBurpExtenderCallbacks callbacks;
     private WSDLParserTab tab;
+	private PrintWriter stdout;
+	private PrintWriter stderr;
     public static Timer timer;
 
     public Menu(IBurpExtenderCallbacks callbacks) {
         helpers = callbacks.getHelpers();
+		stdout = new PrintWriter(callbacks.getStdout(), true);
+		stderr = new PrintWriter(callbacks.getStderr(), true);
         tab = new WSDLParserTab(callbacks);
         this.callbacks = callbacks;
         timer = new Timer();
@@ -30,74 +37,33 @@ public class Menu implements IContextMenuFactory {
 
         JMenuItem item = new JMenuItem("Parse WSDL");
 
-        item.addMouseListener(new MouseListener() {
-
-            public void mouseClicked(MouseEvent e) {
-
-            }
-
-
-            public void mousePressed(MouseEvent e) {
-
-            }
-
-
-            public void mouseReleased(MouseEvent e) {
-                WSDLParser parser = new WSDLParser(callbacks,helpers, tab);
+        item.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+                WSDLParser parser = new WSDLParser(callbacks,helpers, tab);//新建一个解析器
                 try {
-                    new Worker(parser,invocation, tab, callbacks,false).execute();
+                    new Worker(parser,invocation, tab, callbacks,false).execute();//构造新的请求，并创建图形界面显示请求内容
                 } catch (Exception e1) {
                     e1.printStackTrace();
                 }
 
-            }
-
-
-            public void mouseEntered(MouseEvent e) {
-
-            }
-
-
-            public void mouseExited(MouseEvent e) {
-
-            }
-        });
+			}
+		});
+        
         list.add(item);
 
         JMenuItem itemScan = new JMenuItem("Parse WSDL And Do Active Scan");
 
-        item.addMouseListener(new MouseListener() {
-
-            public void mouseClicked(MouseEvent e) {
-
-            }
-
-
-            public void mousePressed(MouseEvent e) {
-
-            }
-
-
-            public void mouseReleased(MouseEvent e) {
-                WSDLParser parser = new WSDLParser(callbacks,helpers, tab);
+        itemScan.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+                WSDLParser parser = new WSDLParser(callbacks,helpers, tab);//新建一个解析器
                 try {
-                    new Worker(parser,invocation, tab, callbacks,true).execute();
+                    new Worker(parser,invocation, tab, callbacks,true).execute();//构造新的请求，并创建图形界面显示请求内容
                 } catch (Exception e1) {
                     e1.printStackTrace();
                 }
 
-            }
-
-
-            public void mouseEntered(MouseEvent e) {
-
-            }
-
-
-            public void mouseExited(MouseEvent e) {
-
-            }
-        });
+			}
+		});
         list.add(itemScan);
 
         return list;
@@ -113,9 +79,11 @@ class Worker extends SwingWorker<Void,Void> {
     private WSDLParserTab tab;
     private IBurpExtenderCallbacks callbacks;
     private int status;
-	private boolean doActiveScan;
+	private boolean doActiveScan = false;
+	private PrintWriter stdout;
+	private PrintWriter stderr;
 
-    public Worker(WSDLParser parser, IContextMenuInvocation invocation, WSDLParserTab tab, IBurpExtenderCallbacks callbacks,boolean DoActiveScan) {
+    public Worker(WSDLParser parser, IContextMenuInvocation invocation, WSDLParserTab tab, IBurpExtenderCallbacks callbacks) {
         JProgressBar progressBar = new JProgressBar();
         progressBar.setString("Parsing WSDL");
         progressBar.setStringPainted(true);
@@ -129,6 +97,13 @@ class Worker extends SwingWorker<Void,Void> {
         this.invocation = invocation;
         this.tab = tab;
         this.callbacks = callbacks;
+		stdout = new PrintWriter(callbacks.getStdout(), true);
+		stderr = new PrintWriter(callbacks.getStderr(), true);
+        
+    }
+    
+    public Worker(WSDLParser parser, IContextMenuInvocation invocation, WSDLParserTab tab, IBurpExtenderCallbacks callbacks,boolean DoActiveScan) {
+    	this(parser,invocation, tab, callbacks);
         this.doActiveScan = DoActiveScan;
     }
 
@@ -136,12 +111,13 @@ class Worker extends SwingWorker<Void,Void> {
     protected Void doInBackground() throws Exception {
     	for( IHttpRequestResponse message:invocation.getSelectedMessages()) {
     		try {
-    			status = parser.parseWSDL(message, callbacks, doActiveScan);
+    			status = parser.parseWSDL(message, callbacks, doActiveScan);//构造新的接口请求
     			
     		}catch (Exception e) {
-    			e.printStackTrace();
+    			e.printStackTrace(stderr);
     		}
     	}
+    	//stderr.println("background done "+doActiveScan);
         return null;
     }
 
